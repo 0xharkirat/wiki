@@ -6,6 +6,7 @@ from django import forms
 
 
 from markdown2 import Markdown
+from random import choice
 
 markdowner = Markdown()
 
@@ -88,6 +89,18 @@ def add(request):
     return render(request, 'encyclopedia/add.html', {
         'aForm': NewAddForm()
     })
+
+
+def random(request):
+    
+    
+
+    return render(request, "encyclopedia/entry.html", {
+                    "title": choice(util.list_entries()),
+                    "entry": markdowner.convert(util.get_entry(choice(util.list_entries())))
+                })
+
+    
 
 
     
