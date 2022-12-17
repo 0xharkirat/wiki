@@ -6,17 +6,9 @@ from django import forms
 
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from markdown2 import Markdown
-
-markdowner = Markdown()
 
 class NewSearchForm(forms.Form):
-    q = forms.CharField(min_length=1, max_length=255)
-
-class NewAddForm(forms.Form):
-    title = forms.CharField(min_length=1, max_length=255)
-    content = forms.CharField(widget=forms.Textarea)
-
+    q = forms.CharField(min_length=1)
 
 entries = util.list_entries()
 
@@ -42,7 +34,7 @@ def index(request):
             else:
                 return render(request, "encyclopedia/entry.html", {
             "title": q,
-            "entry": markdowner.convert(util.get_entry(q))
+            "entry": util.get_entry(q)
         })
 
     return render(request, "encyclopedia/index.html", {
@@ -55,42 +47,12 @@ def wiki(request, title):
 
 
     if (util.get_entry(title) is None):
-        return render(request, "encyclopedia/error.html", {
-            "title":"Error | 404",
-            "message": "404 | Sorry no such page found"
-        })
+        return render(request, "encyclopedia/error.html")
     else:
         return render(request, "encyclopedia/entry.html", {
             "title": title,
-            "entry": markdowner.convert(util.get_entry(title))
+            "entry": util.get_entry(title)
         })
-
-
-def add(request):
-
-    if request.method == "POST":
-        form = NewAddForm(request.POST)
-        if form.is_valid():
-            title = form.cleaned_data["title"]
-            if (util.get_entry(title) is None):
-                content = form.cleaned_data["content"]
-                util.save_entry(title, content)
-
-                return render(request, "encyclopedia/entry.html", {
-                "title": title,
-                "entry": markdowner.convert(util.get_entry(title))
-                })
-            else:
-                return render(request, "encyclopedia/error.html", {
-                "title":"Error",
-                "message": "Sorry, page already exits."
-                })
-
-
-
-    return render(request, 'encyclopedia/add.html', {
-        'aForm': NewAddForm()
-    })
 
 
 
