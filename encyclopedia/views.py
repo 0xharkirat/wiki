@@ -15,6 +15,10 @@ class NewAddForm(forms.Form):
     title = forms.CharField(min_length=1, max_length=255)
     content = forms.CharField(widget=forms.Textarea)
 
+# Define new edit form class
+class NewEditForm(forms.Form):
+    eContent = forms.CharField(widget=forms.Textarea)
+
 
 # Define index route
 def index(request):
@@ -131,8 +135,30 @@ def random(request):
     })
 
 def edit(request, title):
-    print(title)
-    return render(request, "encyclopedia/edit.html")
+
+
+    if request.method == "POST":
+
+        form = NewEditForm(request.POST)
+        if form.is_valid():
+
+            newContent = form.cleaned_data["eContent"]
+
+            util.save_entry(title,newContent)
+            return render(request, "encyclopedia/entry.html", {
+                    "title": title,
+                    "entry": markdowner.convert(util.get_entry(title))
+                })
+
+
+    initial = util.get_entry(title)
+    eform = NewEditForm(initial={"eContent": initial})
+
+    return render(request, "encyclopedia/edit.html", {
+        "eform": eform,
+        "title": title,
+        "initial": initial
+    })
 
 
     
